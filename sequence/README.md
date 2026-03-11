@@ -125,3 +125,67 @@ Example: removing contaminate reads
        | tab2fastq                                  \
        | gzip -c                                    \
        > reads2.fq.gz
+
+## SNP calling wrapper in C
+
+`sequence/snp_calling_fast.c` is a lightweight C wrapper for fast SNP calling with multithreading.
+It wraps a standard pipeline with `bwa`, `samtools`, and `bcftools`, and exposes a `-t/--threads` parameter.
+
+### Build
+
+```bash
+gcc -O2 -Wall -Wextra -o snp_calling_fast sequence/snp_calling_fast.c
+```
+
+### Example
+
+```bash
+./snp_calling_fast \
+  -r ref.fa \
+  -1 sample_R1.fq.gz \
+  -2 sample_R2.fq.gz \
+  -o sample \
+  -t 16 \
+  --min-mq 20 \
+  --min-bq 20
+```
+
+Output files:
+
+- `sample.sorted.bam`
+- `sample.sorted.bam.bai`
+- `sample.snp.vcf.gz`
+- `sample.snp.vcf.gz.tbi`
+
+### How to set sample name and run
+
+In this tool, the sample name is set by `-o` (or `-s`) and used as output file prefix.
+
+For example, if sample name is `NA12878`:
+
+```bash
+./snp_calling_fast \
+  -r ref.fa \
+  -1 NA12878_R1.fq.gz \
+  -2 NA12878_R2.fq.gz \
+  -o NA12878 \
+  -t 16
+```
+
+Equivalent command using `-s`:
+
+```bash
+./snp_calling_fast \
+  -r ref.fa \
+  -1 NA12878_R1.fq.gz \
+  -2 NA12878_R2.fq.gz \
+  -s NA12878 \
+  -t 16
+```
+
+Generated files will be:
+
+- `NA12878.sorted.bam`
+- `NA12878.sorted.bam.bai`
+- `NA12878.snp.vcf.gz`
+- `NA12878.snp.vcf.gz.tbi`
